@@ -1,8 +1,5 @@
 package org.example.sendable;
 
-import edu.wpi.first.util.function.BooleanConsumer;
-import edu.wpi.first.util.function.FloatConsumer;
-import edu.wpi.first.util.function.FloatSupplier;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -16,28 +13,37 @@ import java.util.function.*;
  * Class for storing information about a property that can be added to a Sendable
  */
 class Property {
+
     private Callable getter, setter;
+
     private Class<?> type;
+
     public Property(Callable getter, Callable setter, Class<?> type) {
         this.getter = getter;
         this.setter = setter;
         this.type = type;
     }
+
     public Property(Callable getter, Class<?> type) {
         this(getter,null,type);
     }
+
     public Callable getGetter() {
         return getter;
     }
+
     public Callable getSetter() {
         return setter;
     }
+
     public void setSetter(Callable setter) {
         this.setter = setter;
     }
+
     public Class<?> getType() {
         return type;
     }
+
     public void addToBuilder(SendableBuilder builder,String key) {
         //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         if (type.equals(int.class) || type.equals(long.class)) {
@@ -121,7 +127,9 @@ class Property {
      * Class to ease interfacing with both Fields and Methods.
      */
     static class Callable {
+
         private Function<Object,Object> func;
+
         public Callable(Field field, Object parent, boolean getter) {
             func = getter ? (param) -> {
                 try {
@@ -138,6 +146,7 @@ class Property {
                 return null;
             };
         }
+
         public Callable(Method m, Object parent) {
             func = (params)-> {
                 try {
@@ -147,6 +156,7 @@ class Property {
                 }
             };
         }
+
         public Object call(Object param) {
             return func.apply(param);
         }

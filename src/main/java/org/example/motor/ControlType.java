@@ -9,8 +9,8 @@ public enum ControlType {
     VELOCITY,
     MM_VELOCITY,
     MM_POSITION,
-    VOLTAGE
-    ;
+    VOLTAGE;
+
     SparkBase.ControlType asSparkControl() {
         return switch(this) {
             case POSITION -> SparkBase.ControlType.kPosition;
@@ -21,6 +21,7 @@ public enum ControlType {
             case VOLTAGE -> SparkBase.ControlType.kVoltage;
         };
     }
+
     ControlRequest asTalonControl(double input) {
         return switch(this) {
             case POSITION -> new PositionDutyCycle(input);

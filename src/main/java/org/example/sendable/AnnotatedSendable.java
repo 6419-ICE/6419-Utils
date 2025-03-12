@@ -3,19 +3,15 @@ package org.example.sendable;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * <p>
@@ -58,14 +54,17 @@ import java.util.stream.Stream;
  * @see Variable
  */
 public interface AnnotatedSendable extends Sendable {
+
     /**
      * Annotation used to mark "getter" methods for a property of the given key. For more details, see {@link AnnotatedSendable}.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
+    @Inherited
     @interface Getter {
         String key();
     }
+
     /**
      * Annotation used to mark "setter" methods for a property of the given key. For more details, see {@link AnnotatedSendable}.
      */
@@ -74,6 +73,7 @@ public interface AnnotatedSendable extends Sendable {
     @interface Setter {
         String key();
     }
+
     /**
      * Annotation used to mark fields for a property of the given key. For more details, see {@link AnnotatedSendable}.
      */
@@ -83,6 +83,7 @@ public interface AnnotatedSendable extends Sendable {
         String key();
         boolean mutable() default true;
     }
+
     @Override
     default void initSendable(SendableBuilder builder) {
         //value = Triple<Getter, Setter, ReturnType>
