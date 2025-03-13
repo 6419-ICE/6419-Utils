@@ -89,4 +89,6 @@ public class GenericSpark implements GenericMotorController<SparkBase> {
     public void stop() {
         motor.stopMotor();
     }
+
+
 }

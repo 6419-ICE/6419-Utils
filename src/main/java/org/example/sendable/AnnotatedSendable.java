@@ -114,11 +114,12 @@ public interface AnnotatedSendable extends Sendable {
             map.get(key).setSetter(new Property.Callable(setter,this));
         }
         //-------------------FIELD MAPPING-------------------
-        Field[] fields = Arrays.stream(getClass().getFields())
+        Field[] fields = Arrays.stream(getClass().getDeclaredFields())
                 .filter((f)->f.isAnnotationPresent(Variable.class))
                 .toArray(Field[]::new);
         for (Field f : fields) {
             Variable annot = f.getAnnotation(Variable.class);
+            f.setAccessible(true);
             map.put(annot.key(),
                     new Property(
                             new Property.Callable(f,this,true),

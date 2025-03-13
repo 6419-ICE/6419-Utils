@@ -96,6 +96,8 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
         if (motor.isTalonFX()) motor.asTalonFX().stopMotor();
         else motor.asTalonFXS().stopMotor();
     }
+
+
     private static class TalonWrapper {
 
         private CommonTalon motor;
