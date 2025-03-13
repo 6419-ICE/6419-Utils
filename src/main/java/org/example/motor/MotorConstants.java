@@ -98,31 +98,6 @@ public final class MotorConstants {
          /**The resolution of the SPARK Flex's integrated encoder in counts per revolution*/
          public static final double flexEncoderResolution = 7168;
      }
-     public static final class Falcon500 {
-         /**The motor's velocity constant*/
-         public static final double kV = 0;
-
-         /**The motor's feedforward constant. This should only be used for Velocity PIDFs as the "kFF" value. This is NOT the same as arbitrary feedforward, and may cause issues when used in non-velocity PIDFs*/
-         public static final double kFF = 1.0/kV;
-
-         /**The motor's free speed in RPM (Rotations Per Minute)*/
-         public static final double freeSpeed = 0;
-
-         /**The motor's free running current in Amps*/
-         public static final double freeCurrent = 0;
-
-         /**The motor's stall current in Amps*/
-         public static final double stallCurrent = 0;
-
-         /**The motor's stall torque in Newton-meters*/
-         public static final double stallTorque = 0;
-         /**The motor's peak output power in Watts*/
-         public static final double peakOutputPower = 0;
-
-         /**The resolution of the motor's integrated hall-sensor encoder in counts per revolution*/
-         public static final double encoderResolution = 0;
-     }
-
     /**
      * <pre>
      * Constants for the CTRE "Kraken X60" Brushless Motor. Stats taken from: <a href="https://docs.wcproducts.com/kraken-x60/kraken-x60-motor/overview-and-features/motor-performance">WCP's 2025 docs</a>
