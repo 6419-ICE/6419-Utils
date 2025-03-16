@@ -1,0 +1,176 @@
+package org.ice.util.motor;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.traits.CommonTalon;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import org.ice.util.sendable.AnnotatedSendable;
+
+/**
+ * Generic top-level interface that defines multiple methods for controlling and reading motors.
+ * Instances can be directly defined using the {@link GenericSpark} and {@link GenericTalon} subclasses, or using the {@link #from(TalonFX)}, or {@link #from(SparkBase, SparkBaseConfig)} methods.
+ * @param <T> The motor represented by the controller
+ */
+public interface GenericMotorController<T> extends AnnotatedSendable {
+
+    /**
+     * Gets the underlying motor controller used to control the motor.
+     * @return The underlying motor controller used to control the motor.
+     */
+    T getMotor();
+
+    /**
+     * Sets the motor to use the given {@link ControlType} with the given input without applying the controller's {@link #getConversionFactor() conversion factor}
+     * @param input the input.
+     * @param type the control mode for the motor
+     */
+    void controlRaw(double input, ControlType type);
+
+    /**
+     * Sets the motor to use the given {@link ControlType} with the given input, applying the controller's {@link #getConversionFactor() conversion factor} for affected control types
+     * @param input the input for the given control type
+     * @param type the control type
+     */
+    default void control(double input, ControlType type) {
+        if (type==ControlType.DUTY_CYCLE||type==ControlType.VOLTAGE) controlRaw(input,type);
+        else controlRaw(input/
+
+                getConversionFactor(),type);
+    }
+
+    /**
+     * Sets the motor's power as a range from -1 to 1. This is equivalent to using the {@link ControlType#DUTY_CYCLE DUTY_CYCLE control type}
+     * @param power the percent power the motor should be set to (-1 to 1)
+     * @see #get()
+     * @see #control(double, ControlType)
+     */
+    default void set(double power) {
+        controlRaw(power,ControlType.DUTY_CYCLE);
+    }
+
+    /**
+     * Gets the current percent power of the motor as a double ranging from -1 to 1.
+     * @return the motor's current power as a double ranging from -1 to 1
+     * @see #set(double)
+     */
+    double get();
+
+    /**
+     * The motor's current temperature in Celsius.
+     */
+    double getTemp();
+
+    /**
+     * The output current of the motor in Amps.
+     */
+    double getOutputCurrent();
+
+    /**
+     * The position reading of the motor's encoder without the {@link #getConversionFactor() conversion factor} applied.
+     * @see #getPosition()
+     */
+    double getRawPosition();
+
+
+    /**
+     * The velocity reading of the motor's encoder without the {@link #getConversionFactor() conversion factor} applied.
+     * @see #getVelocity()
+     */
+    double getRawVelocity();
+
+    /**
+     * The conversion factor of the motor. This is applied when reading and setting the motor's velocity and position.
+     * @return The motor's conversion factor.
+     * @see #setConversionFactor(double)
+     */
+    double getConversionFactor();
+
+    /**
+     * Sets the motor's {@link #getConversionFactor() conversion factor} to the given value.
+     * @param factor the new conversion factor.
+     */
+    void setConversionFactor(double factor);
+
+    /**
+     * The motor's CAN bus ID
+     */
+    int getMotorID();
+
+    /**
+     * Sets this motor to {@link #follow(GenericMotorController, boolean) follow} the given leader motor.
+     * @param leader the motor to follow
+     * @see #follow(GenericMotorController, boolean)
+     * @see #addFollower(GenericMotorController)
+     */
+    default void follow(GenericMotorController<T> leader) {
+        follow(leader,false);
+    }
+
+    /**
+     * Sets this motor to follow the given leader motor by copying its velocity.
+     * The inverted parameter can be used invert the direction the motor follows the leader.
+     * @param leader the motor to follow.
+     * @param inverted sets the direction that this motor follows the leader.
+     * @see #follow(GenericMotorController)
+     * @see #addFollower(GenericMotorController)
+     */
+    void follow(GenericMotorController<T> leader, boolean inverted);
+
+    /**
+     * Sets the given motor to {@link #follow(GenericMotorController, boolean) follow} this motor.
+     * this is a shortcut for {@code motor.follow(this);}
+     * @param motor the motor that should follow this motor.
+     * @see #follow(GenericMotorController, boolean)
+     * @see #follow(GenericMotorController)
+     */
+    default void addFollower(GenericMotorController<T> motor) {
+        motor.follow(this);
+    }
+
+    /**
+     * The position reading of the motor's encoder with the {@link #getConversionFactor() conversion factor} applied.
+     * @see #getRawPosition()
+     */
+    @Getter(key="Position")
+    default double getPosition() {
+        return getRawPosition()*getConversionFactor();
+    }
+
+    /**
+     * The velocity reading of the motor's encoder with the {@link #getConversionFactor() conversion factor} applied.
+     * @see #getRawVelocity()
+     */
+    @Getter(key="Velocity")
+    default double getVelocity() {
+        return getRawVelocity()*getConversionFactor();
+    }
+
+    /**
+     * Creates a new {@link GenericSpark} instance from the given motor and config. This is equivalent to {@link GenericSpark#GenericSpark(SparkBase, SparkBaseConfig) new GenericSpark(motor,config)}
+     * @param motor the motor controller to use when creating the GenericSpark
+     * @param config the motor config to use when creating the GenericSpark
+     * @return the new GenericSpark instance.
+     * @see GenericSpark
+     * @see GenericSpark#GenericSpark(SparkBase, SparkBaseConfig)
+     */
+    static GenericSpark from(SparkBase motor, SparkBaseConfig config) {
+        return new GenericSpark(motor,config);
+    }
+
+    /**
+     * Creates a new {@link GenericTalon} instance from the given motor. This is equivalent to {@link GenericTalon#GenericTalon(CommonTalon) new GenericTalon(motor)}
+     * @param motor the motor controller to use when creating the GenericTalon
+     * @return the new GenericTalon instance.
+     * @see GenericTalon
+     * @see GenericTalon#GenericTalon(CommonTalon)
+     */
+    static GenericTalon from(TalonFX motor) {
+        return new GenericTalon(motor);
+    }
+
+    /**
+     * Stops all motor movement until the motor is told to move again.
+     */
+    void stop();
+
+}

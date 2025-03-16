@@ -1,4 +1,4 @@
-package org.example.sendable;
+package org.ice.util.sendable;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 /**
  * <p>
  * {@link Sendable} sub-interface that allows for {@link Sendable#initSendable(SendableBuilder) building a Sendable} using Java Annotations.
- * This class supports all of the same types as Sendable, excluding {@link SendableBuilder#addRawProperty(String, String, Supplier, Consumer) raw properties} (int, long, float, double, boolean, String, int[], long[], float[], double[], boolean[], String[], and AutoCloseable).
+ * This class supports all of the same types as Sendable, excluding {@link SendableBuilder#addRawProperty(String, String, Supplier, Consumer) raw properties} ({@code int},{@code long}, {@code float}, {@code double}, {@code boolean}, {@link String}, {@code int[]}, {@code long[]}, {@code float[]}, {@code double[]}, {@code boolean[]}, {@code String[]}, and {@link AutoCloseable}).
  * Implementing classes can add a "Property" using the {@link Getter Getter}, {@link Setter Setter} (Methods), and {@link Variable Variable} (Fields) annotations.
  * </p>
  * Methods with the Getter Annotation should return a valid type, and have no parameters:
@@ -86,7 +86,6 @@ public interface AnnotatedSendable extends Sendable {
 
     @Override
     default void initSendable(SendableBuilder builder) {
-        //value = Triple<Getter, Setter, ReturnType>
         Map<String, Property> map = new HashMap<>();
 
         //-------------------METHOD MAPPING-------------------

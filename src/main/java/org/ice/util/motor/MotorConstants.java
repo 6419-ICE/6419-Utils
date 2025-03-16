@@ -1,4 +1,4 @@
-package org.example.motor;
+package org.ice.util.motor;
 
 /**
  * An (Incomplete) list of statistics and information about FRC-legal motors.

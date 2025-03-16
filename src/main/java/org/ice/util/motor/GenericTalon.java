@@ -1,4 +1,4 @@
-package org.example.motor;
+package org.ice.util.motor;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
@@ -11,6 +11,10 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 
+/**
+ * TalonFX and TalonFXS implementation of {@link GenericMotorController}
+ * @see GenericSpark
+ */
 public class GenericTalon implements GenericMotorController<CommonTalon> {
     private TalonWrapper motor;
     private StatusSignal<Temperature> tempSignal;
@@ -18,6 +22,11 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
     private StatusSignal<Current> currentSignal;
     private StatusSignal<AngularVelocity> velocitySignal;
     private double conversionFactor = 1;
+
+    /**
+     * Constructs a new GenericTalon instance using the given motor.
+     * @param motor
+     */
     public GenericTalon(CommonTalon motor) {
         this.motor = new TalonWrapper(motor);
         tempSignal = motor.getDeviceTemp();
@@ -25,78 +34,84 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
         currentSignal = motor.getTorqueCurrent();
         velocitySignal = motor.getVelocity();
     }
+
+    /**{@inheritDoc}*/
     @Override
     public CommonTalon getMotor() {
         return motor.asTalon();
     }
 
+    /**{@inheritDoc}*/
     @Override
     public void controlRaw(double input, ControlType type) {
-
         motor.asTalon().setControl(type.asTalonControl(input));
     }
 
+    /**{@inheritDoc}*/
     @Override
     @Getter(key="Power")
     public double get() {
         return motor.isTalonFX() ? motor.asTalonFX().get() : motor.asTalonFXS().get();
     }
 
+    /**{@inheritDoc}*/
     @Override
     @Getter(key="Temperature")
     public double getTemp() {
-        return tempSignal.refresh().getValue().in(Units.Fahrenheit);
+        return tempSignal.refresh().getValue().in(Units.Celsius);
     }
 
+    /**{@inheritDoc}*/
     @Override
     public double getRawPosition() {
         return positionSignal.refresh().getValue().in(Units.Rotations);
     }
 
-    @Override
-    public double getRawAbsolutePosition() {
-        throw new UnsupportedOperationException("Talon does not support absolute encoder stuff maybe?");
-    }
-
+    /**{@inheritDoc}*/
     @Override
     @Getter(key="Output Current")
     public double getOutputCurrent() {
         return currentSignal.refresh().getValue().in(Units.Amps);
     }
 
+    /**{@inheritDoc}*/
     @Override
     public double getRawVelocity() {
         return velocitySignal.getValue().in(Units.RotationsPerSecond);
     }
 
+    /**{@inheritDoc}*/
     @Override
     @Getter(key="Conversion Factor")
     public double getConversionFactor() {
         return conversionFactor;
     }
 
+    /**{@inheritDoc}*/
     @Override
     public void setConversionFactor(double factor) {
         conversionFactor = factor;
     }
 
+    /**{@inheritDoc}*/
     @Override
     @Getter(key="Motor ID")
     public int getMotorID() {
         return motor.isTalonFX() ? motor.asTalonFX().getDeviceID() : motor.asTalonFXS().getDeviceID();
     }
 
+    /**{@inheritDoc}*/
     @Override
     public void follow(GenericMotorController<CommonTalon> leader, boolean inverted) {
         motor.asTalon().setControl(new Follower(leader.getMotorID(),inverted));
     }
 
+    /**{@inheritDoc}*/
     @Override
     public void stop() {
         if (motor.isTalonFX()) motor.asTalonFX().stopMotor();
         else motor.asTalonFXS().stopMotor();
     }
-
 
     private static class TalonWrapper {
 
