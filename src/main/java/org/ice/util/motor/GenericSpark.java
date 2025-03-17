@@ -14,7 +14,7 @@ public class GenericSpark implements GenericMotorController<SparkBase> {
 
     private SparkClosedLoopController controller;
 
-    private double conversionFactor = 1.0;
+    private double posConversion = 1.0, veloConversion = 1.0;
 
     private SparkBaseConfig config;
 
@@ -73,14 +73,26 @@ public class GenericSpark implements GenericMotorController<SparkBase> {
     /**{@inheritDoc}*/
     @Override
     @Getter(key="Conversion Factor")
-    public double getConversionFactor() {
-        return conversionFactor;
+    public double getPositionConversionFactor() {
+        return posConversion;
     }
 
     /**{@inheritDoc}*/
     @Override
-    public void setConversionFactor(double factor) {
-        conversionFactor = factor;
+    public void setPositionConversionFactor(double factor) {
+        posConversion = factor;
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public double getVelocityConversionFactor() {
+        return veloConversion;
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public void setVelocityConversionFactor(double factor) {
+        veloConversion = factor;
     }
 
     /**{@inheritDoc}*/
@@ -95,6 +107,12 @@ public class GenericSpark implements GenericMotorController<SparkBase> {
     public void follow(GenericMotorController<SparkBase> leader, boolean inverted) {
         config.follow(leader.getMotor(),inverted);
         motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public void setEncoderPosition(double value) {
+        motor.getEncoder().setPosition(value);
     }
 
     /**{@inheritDoc}*/

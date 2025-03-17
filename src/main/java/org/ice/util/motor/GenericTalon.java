@@ -21,7 +21,7 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
     private StatusSignal<Angle> positionSignal;
     private StatusSignal<Current> currentSignal;
     private StatusSignal<AngularVelocity> velocitySignal;
-    private double conversionFactor = 1;
+    private double posConversion = 1.0, veloConversion = 1.0;
 
     /**
      * Constructs a new GenericTalon instance using the given motor.
@@ -83,14 +83,26 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
     /**{@inheritDoc}*/
     @Override
     @Getter(key="Conversion Factor")
-    public double getConversionFactor() {
-        return conversionFactor;
+    public double getPositionConversionFactor() {
+        return posConversion;
     }
 
     /**{@inheritDoc}*/
     @Override
-    public void setConversionFactor(double factor) {
-        conversionFactor = factor;
+    public void setPositionConversionFactor(double factor) {
+        posConversion = factor;
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public double getVelocityConversionFactor() {
+        return veloConversion;
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public void setVelocityConversionFactor(double factor) {
+        veloConversion = factor;
     }
 
     /**{@inheritDoc}*/
@@ -104,6 +116,12 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
     @Override
     public void follow(GenericMotorController<CommonTalon> leader, boolean inverted) {
         motor.asTalon().setControl(new Follower(leader.getMotorID(),inverted));
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public void setEncoderPosition(double value) {
+        motor.asTalon().setPosition(value);
     }
 
     /**{@inheritDoc}*/

@@ -10,7 +10,8 @@ import java.util.Arrays;
 import java.util.function.*;
 
 /**
- * Class for storing information about a property that can be added to a Sendable
+ * Class for storing information about a property that can be added to a Sendable.
+ * This class was purely made for internal use in {@link AnnotatedSendable}, and is therefore package-private.
  */
 class Property {
 

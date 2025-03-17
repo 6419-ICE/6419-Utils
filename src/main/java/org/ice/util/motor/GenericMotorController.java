@@ -20,22 +20,23 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
     T getMotor();
 
     /**
-     * Sets the motor to use the given {@link ControlType} with the given input without applying the controller's {@link #getConversionFactor() conversion factor}
+     * Sets the motor to use the given {@link ControlType} with the given input without applying the controller's {@link #getPositionConversionFactor() conversion factor}
      * @param input the input.
      * @param type the control mode for the motor
      */
     void controlRaw(double input, ControlType type);
 
     /**
-     * Sets the motor to use the given {@link ControlType} with the given input, applying the controller's {@link #getConversionFactor() conversion factor} for affected control types
+     * Sets the motor to use the given {@link ControlType} with the given input, applying the controller's {@link #getPositionConversionFactor() conversion factor} for affected control types
      * @param input the input for the given control type
      * @param type the control type
      */
     default void control(double input, ControlType type) {
-        if (type==ControlType.DUTY_CYCLE||type==ControlType.VOLTAGE) controlRaw(input,type);
-        else controlRaw(input/
-
-                getConversionFactor(),type);
+        switch(type) {
+            case DUTY_CYCLE, VOLTAGE -> controlRaw(input,type);
+            case POSITION, MM_POSITION -> controlRaw(input/getPositionConversionFactor(),type);
+            case VELOCITY, MM_VELOCITY -> controlRaw(input/getVelocityConversionFactor(),type);
+        }
     }
 
     /**
@@ -66,30 +67,45 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
     double getOutputCurrent();
 
     /**
-     * The position reading of the motor's encoder without the {@link #getConversionFactor() conversion factor} applied.
+     * The position reading of the motor's encoder without the {@link #getPositionConversionFactor() conversion factor} applied.
      * @see #getPosition()
      */
     double getRawPosition();
 
 
     /**
-     * The velocity reading of the motor's encoder without the {@link #getConversionFactor() conversion factor} applied.
+     * The velocity reading of the motor's encoder without the {@link #getPositionConversionFactor() conversion factor} applied.
      * @see #getVelocity()
      */
     double getRawVelocity();
 
     /**
-     * The conversion factor of the motor. This is applied when reading and setting the motor's velocity and position.
-     * @return The motor's conversion factor.
-     * @see #setConversionFactor(double)
+     * The position conversion factor of the motor. This is applied when reading and setting the motor's position.
+     * @return The motor's position conversion factor.
+     * @see #setPositionConversionFactor(double)
      */
-    double getConversionFactor();
+    double getPositionConversionFactor();
 
     /**
-     * Sets the motor's {@link #getConversionFactor() conversion factor} to the given value.
+     * Sets the motor's {@link #getPositionConversionFactor() position conversion factor} to the given value.
      * @param factor the new conversion factor.
+     * @see #getPositionConversionFactor()
      */
-    void setConversionFactor(double factor);
+    void setPositionConversionFactor(double factor);
+
+    /**
+     * The velocity conversion factor of the motor. This is applied when reading and setting the motor's velocity.
+     * @return The motor's velocity conversion factor.
+     * @see #setVelocityConversionFactor(double)
+     */
+    double getVelocityConversionFactor();
+
+    /**
+     * Sets the motor's {@link #getVelocityConversionFactor() velocity conversion factor} to the given value.
+     * @param factor the new conversion factor.
+     * @see #setVelocityConversionFactor(double)
+     */
+    void setVelocityConversionFactor(double factor);
 
     /**
      * The motor's CAN bus ID
@@ -128,23 +144,28 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
     }
 
     /**
-     * The position reading of the motor's encoder with the {@link #getConversionFactor() conversion factor} applied.
+     * The position reading of the motor's encoder with the {@link #getPositionConversionFactor() conversion factor} applied.
      * @see #getRawPosition()
      */
     @Getter(key="Position")
     default double getPosition() {
-        return getRawPosition()*getConversionFactor();
+        return getRawPosition()* getPositionConversionFactor();
     }
 
     /**
-     * The velocity reading of the motor's encoder with the {@link #getConversionFactor() conversion factor} applied.
+     * The velocity reading of the motor's encoder with the {@link #getPositionConversionFactor() conversion factor} applied.
      * @see #getRawVelocity()
      */
     @Getter(key="Velocity")
     default double getVelocity() {
-        return getRawVelocity()*getConversionFactor();
+        return getRawVelocity()* getVelocityConversionFactor();
     }
 
+    /**
+     * Sets the encoder position to the given value. This does NOT move the motor, it only sets the encoder value.
+     * @param value the new encoder value
+     */
+    void setEncoderPosition(double value);
     /**
      * Creates a new {@link GenericSpark} instance from the given motor and config. This is equivalent to {@link GenericSpark#GenericSpark(SparkBase, SparkBaseConfig) new GenericSpark(motor,config)}
      * @param motor the motor controller to use when creating the GenericSpark
