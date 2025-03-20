@@ -21,6 +21,7 @@ import java.util.function.Supplier;
  *      //other code...
  *  }
  * }
+ * NOTE: This command does not end on its own
  * </pre>
  * @param <T> Enum that implements DoubleConstant, and represents all the allowed values this command accepts.
  * @param <S> The subsystem that this command uses and requires.

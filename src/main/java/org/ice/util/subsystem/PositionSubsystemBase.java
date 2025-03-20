@@ -51,4 +51,11 @@ public abstract class PositionSubsystemBase extends AnnotatedSubsystemBase imple
         return MathUtil.isNear(goal,getPosition(),getTolerance());
     }
 
+    @Override
+    public GenericMotorController<?> getMotor() {
+        return motor;
+    }
+
+
+
 }

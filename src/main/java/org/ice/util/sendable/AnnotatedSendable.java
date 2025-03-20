@@ -57,6 +57,7 @@ public interface AnnotatedSendable extends Sendable {
 
     /**
      * Annotation used to mark "getter" methods for a property of the given key. For more details, see {@link AnnotatedSendable}.
+     * @see Setter
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)

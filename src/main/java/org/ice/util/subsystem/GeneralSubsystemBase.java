@@ -45,4 +45,9 @@ public abstract class GeneralSubsystemBase extends PositionSubsystemBase impleme
     public void setVelocity(double velo) {
         motor.control(velo,ControlType.VELOCITY);
     }
+
+    @Override
+    public GenericMotorController<?> getMotor() {
+        return motor;
+    }
 }

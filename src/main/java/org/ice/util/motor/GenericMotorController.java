@@ -166,6 +166,7 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
      * @param value the new encoder value
      */
     void setEncoderPosition(double value);
+
     /**
      * Creates a new {@link GenericSpark} instance from the given motor and config. This is equivalent to {@link GenericSpark#GenericSpark(SparkBase, SparkBaseConfig) new GenericSpark(motor,config)}
      * @param motor the motor controller to use when creating the GenericSpark

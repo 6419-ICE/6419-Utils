@@ -123,7 +123,6 @@ public final class MotorConstants {
          /**The motor's peak output power in Watts*/
          public static final double peakOutputPower = 1108;
 
-
         /**The motor's typical output power at 40 Amps in Watts*/
         public static final double typicalOutputPower = 413;
 

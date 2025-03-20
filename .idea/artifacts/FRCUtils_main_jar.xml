@@ -1,0 +1,36 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="FRCUtils.main:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/FRCUtils_main_jar</output-path>
+    <root id="archive" name="FRCUtils.main.jar">
+      <element id="module-output" name="FRCUtils.main" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.cscore/cscore-java/2025.3.1/d0e76f8604526a30ef9d49035fa4a05c891d6ba/cscore-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.epilogue/epilogue-runtime-java/2025.3.1/1893f52706c36e8280c63e9349fdd4773c2035a8/epilogue-runtime-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/us.hebi.quickbuf/quickbuf-runtime/1.3.3/1d4eb0c4782b052c7bdec3a409835d8cd1a43d17/quickbuf-runtime-1.3.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-dsparse/0.43.1/bb2e0d4410799f3e4f2ca6e1b870f2693f9f7ca3/ejml-dsparse-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-core/0.43.1/378837ef010fedab1a8c25f19079503aaf054a81/ejml-core-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-cdense/0.43.1/7be7e81513c630637fa97f621c6b076712e1ffb/ejml-cdense-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpinet/wpinet-java/2025.3.1/3300ca8e6841f0a9455e4db73931cade6248d9e/wpinet-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.ntcore/ntcore-java/2025.3.1/74d9c268b73771d0cd560cc56b2e750d6fa4e9bc/ntcore-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.hal/hal-java/2025.3.1/6f68e0cf86c7203242551534a17a6ec4bf4c4c3b/hal-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.15.2/a6fe1836469a69b3ff66037c324d75fc66ef137c/jackson-core-2.15.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-fdense/0.43.1/97806ca2f8df28a92152edee1cac17577b103582/ejml-fdense-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-ddense/0.43.1/a74df7b79121914a6921194b9a39d6c0a73b7744/ejml-ddense-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-zdense/0.43.1/5b8b11fd46abafe095c37e7926896adccd58277e/ejml-zdense-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.cameraserver/cameraserver-java/2025.3.1/c38b7a6075ca26b0cfbaa3f84489a793aeea1ba4/cameraserver-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.apriltag/apriltag-java/2025.3.1/933cc45344cfeb3cab0b50ebe266998fbf291182/apriltag-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpiunits/wpiunits-java/2025.3.1/e3ed8081ed3150770562858e6fb82367e0cbfe9a/wpiunits-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpilibNewCommands/wpilibNewCommands-java/2025.3.1/8d19b4ab63943ea032701aa8fa72bc4955d5433b/wpilibNewCommands-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.revrobotics.frc/REVLib-java/2025.0.3/56c49042f65c643de4243d0e39d5b6347c240fa7/REVLib-java-2025.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.15.2/4724a65ac8e8d156a24898d50fd5dbd3642870b8/jackson-annotations-2.15.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-fsparse/0.43.1/a059f579095b9841dbe32113b96450413b401db3/ejml-fsparse-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-simple/0.43.1/14bdcf04ee68dbe6c4b57a7c465ef0c9194417ba/ejml-simple-0.43.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.ctre.phoenix6/wpiapi-java/25.3.1/5281cde2d531950dea0751c9aab428e8dfe07023/wpiapi-java-25.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpimath/wpimath-java/2025.3.1/807789039e0e9ab8d58aa619627c510bdb47f4ed/wpimath-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpiutil/wpiutil-java/2025.3.1/2c356ade3ac094a289be12f99a84ce04d866d911/wpiutil-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.pathplanner.lib/PathplannerLib-java/2025.2.6/1a5022e3bec51515e11f20bcc0ce7c1ed26e4862/PathplannerLib-java-2025.2.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpilibj/wpilibj-java/2025.3.1/34e0478f25e00bb66271b1da50686e746568f0a8/wpilibj-java-2025.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../Public/wpilib/2025/maven/edu/wpi/first/thirdparty/frc2025/opencv/opencv-java/4.10.0-3/opencv-java-4.10.0-3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.15.2/9353b021f10c307c00328f52090de2bdb4b6ff9c/jackson-databind-2.15.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

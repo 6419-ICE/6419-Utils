@@ -28,4 +28,9 @@ public abstract class VelocitySubsystemBase extends AnnotatedSubsystemBase imple
     public void setVelocity(double velo) {
         motor.control(velo, ControlType.VELOCITY);
     }
+
+    @Override
+    public GenericMotorController<?> getMotor() {
+        return motor;
+    }
 }

@@ -2,6 +2,7 @@ package org.ice.util.subsystem;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.ice.util.motor.ControlType;
+import org.ice.util.motor.GenericMotorController;
 
 /**
  * Interface defining methods for a Subsystem used for controlling a motor via {@link ControlType#POSITION position control}.
@@ -39,4 +40,6 @@ public interface PositionSubsystem extends Subsystem {
      * @return the amount that the motor's position can be off.
      */
     double getTolerance();
+
+    GenericMotorController<?> getMotor();
 }

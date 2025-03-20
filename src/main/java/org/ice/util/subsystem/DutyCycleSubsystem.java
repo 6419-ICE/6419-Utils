@@ -2,6 +2,8 @@ package org.ice.util.subsystem;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.ice.util.motor.ControlType;
+import org.ice.util.motor.GenericMotorController;
+
 /**
  * Interface defining methods for a Subsystem used for controlling a motor via {@link ControlType#DUTY_CYCLE duty cycle control}.
  * @see DutyCycleSubsystemBase
@@ -20,4 +22,6 @@ public interface DutyCycleSubsystem extends Subsystem {
      * The power of the subsystem's motor
      */
     double getPower();
+
+    GenericMotorController<?> getMotor();
 }

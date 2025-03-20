@@ -2,6 +2,9 @@ package org.ice.util.swerve;
 
 import org.ice.util.sendable.AnnotatedSendable;
 
+/**
+ * Mutable set of PID values. Can be put on Smartdashboard and tuned in real time
+ */
 public class PIDValues implements AnnotatedSendable {
     //I know, hungarian notation bad, especially when it isn't even true. But like kP kI and kD just make sense.
     private double kP, kI, kD, kFF;

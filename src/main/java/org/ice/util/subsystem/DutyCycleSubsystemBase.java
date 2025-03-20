@@ -32,4 +32,9 @@ public abstract class DutyCycleSubsystemBase extends AnnotatedSubsystemBase impl
     public double getPower() {
         return motor.get();
     }
+
+    @Override
+    public GenericMotorController<?> getMotor() {
+        return motor;
+    }
 }
