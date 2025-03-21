@@ -34,8 +34,8 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
     default void control(double input, ControlType type) {
         switch(type) {
             case DUTY_CYCLE, VOLTAGE -> controlRaw(input,type);
-            case POSITION, MM_POSITION -> controlRaw(input/getPositionConversionFactor(),type);
-            case VELOCITY, MM_VELOCITY -> controlRaw(input/getVelocityConversionFactor(),type);
+            case POSITION, MM_POSITION -> controlRaw(input*getPositionConversionFactor(),type);
+            case VELOCITY, MM_VELOCITY -> controlRaw(input*getVelocityConversionFactor(),type);
         }
     }
 
@@ -89,9 +89,20 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
     /**
      * Sets the motor's {@link #getPositionConversionFactor() position conversion factor} to the given value.
      * @param factor the new conversion factor.
+     * @see #setPositionConversionFactor(GearRatio)
      * @see #getPositionConversionFactor()
      */
     void setPositionConversionFactor(double factor);
+
+    /**
+     * Sets the motor's {@link #getPositionConversionFactor()}  position conversion factor} to the given gear ratio. This is equivalent to {@code setPositionConversionFactor(ratio.getConversionFactor())}
+     * @param ratio the gear ratio to use.
+     * @see #setPositionConversionFactor(double)
+     * @see #setVelocityConversionFactor(GearRatio)
+     */
+    default void setPositionConversionFactor(GearRatio ratio) {
+        setPositionConversionFactor(ratio.getConversionFactor());
+    }
 
     /**
      * The velocity conversion factor of the motor. This is applied when reading and setting the motor's velocity.
@@ -103,10 +114,19 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
     /**
      * Sets the motor's {@link #getVelocityConversionFactor() velocity conversion factor} to the given value.
      * @param factor the new conversion factor.
-     * @see #setVelocityConversionFactor(double)
+     * @see #setVelocityConversionFactor(GearRatio)
+     * @see #setPositionConversionFactor(double)
      */
     void setVelocityConversionFactor(double factor);
-
+    /**
+     * Sets the motor's {@link #getVelocityConversionFactor() velocity conversion factor} to the given gear ratio. This is equivalent to {@code setVelocityConversionFactor(ratio.getConversionFactor())}
+     * @param ratio the gear ratio to use.
+     * @see #setVelocityConversionFactor(double)
+     * @see #setPositionConversionFactor(GearRatio)
+     */
+    default void setVelocityConversionFactor(GearRatio ratio) {
+        setVelocityConversionFactor(ratio.getConversionFactor());
+    }
     /**
      * The motor's CAN bus ID
      */
@@ -149,7 +169,7 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
      */
     @Getter(key="Position")
     default double getPosition() {
-        return getRawPosition()* getPositionConversionFactor();
+        return getRawPosition()/getPositionConversionFactor();
     }
 
     /**
@@ -158,7 +178,7 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
      */
     @Getter(key="Velocity")
     default double getVelocity() {
-        return getRawVelocity()* getVelocityConversionFactor();
+        return getRawVelocity()/getVelocityConversionFactor();
     }
 
     /**
