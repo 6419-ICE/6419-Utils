@@ -1,9 +1,11 @@
 package org.ice.util.swerve;
 
+import com.pathplanner.lib.config.PIDConstants;
+import edu.wpi.first.math.controller.PIDController;
 import org.ice.util.sendable.AnnotatedSendable;
 
 /**
- * Mutable set of PID values. Can be put on Smartdashboard and tuned in real time
+ * Mutable set of PID values. Can be put on SmartDashboard and tuned in real time
  */
 public class PIDValues implements AnnotatedSendable {
     //I know, hungarian notation bad, especially when it isn't even true. But like kP kI and kD just make sense.
@@ -63,6 +65,18 @@ public class PIDValues implements AnnotatedSendable {
     @Getter(key="FF")
     public double getFF() {
         return kFF;
+    }
+    public PIDController asController() {
+        return new PIDController(kP,kI,kD,kFF);
+    }
+    public static PIDValues from(double kP, double kI, double kD) {
+        return new PIDValues(kP,kI,kD);
+    }
+    public static PIDValues from(double kP, double kI, double kD, double kFF) {
+        return new PIDValues(kP,kI,kD,kFF);
+    }
+    public static PIDValues from(PIDController pidController) {
+        return new PIDValues(pidController.getP(),pidController.getI(),pidController.getD());
     }
 }
 
