@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
+    id 'maven-publish'
 }
 
 group = 'org.example'
