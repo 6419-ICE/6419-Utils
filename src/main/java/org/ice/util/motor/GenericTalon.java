@@ -1,6 +1,8 @@
 package org.ice.util.motor;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -25,9 +27,27 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
 
     /**
      * Constructs a new GenericTalon instance using the given motor.
-     * @param motor
+     * @param motor the motor
      */
     public GenericTalon(CommonTalon motor) {
+        this.motor = new TalonWrapper(motor);
+        tempSignal = motor.getDeviceTemp();
+        positionSignal = motor.getPosition();
+        currentSignal = motor.getTorqueCurrent();
+        velocitySignal = motor.getVelocity();
+    }
+
+    public GenericTalon(TalonFX motor, TalonFXConfiguration config) {
+        motor.getConfigurator().apply(config);
+        this.motor = new TalonWrapper(motor);
+        tempSignal = motor.getDeviceTemp();
+        positionSignal = motor.getPosition();
+        currentSignal = motor.getTorqueCurrent();
+        velocitySignal = motor.getVelocity();
+    }
+
+    public GenericTalon(TalonFXS motor, TalonFXSConfiguration config) {
+        motor.getConfigurator().apply(config);
         this.motor = new TalonWrapper(motor);
         tempSignal = motor.getDeviceTemp();
         positionSignal = motor.getPosition();

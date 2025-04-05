@@ -19,6 +19,15 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
     private SwerveDriveOdometry odometry;
     private SwerveDriveKinematics kinematics;
     private DriveTrainConfig config;
+
+    /**
+     * Constructs a new REVDriveTrain with the four given {@link REVSwerveModule swerve modules}, and the given config
+     * @param frontLeft the front left swerve module
+     * @param frontRight the front right swerve module
+     * @param backLeft the back left swerve module
+     * @param backRight the back right swerve module
+     * @param config config values for the new module
+     */
     public REVDriveTrain(REVSwerveModule frontLeft, REVSwerveModule frontRight, REVSwerveModule backLeft, REVSwerveModule backRight, DriveTrainConfig config) {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
@@ -26,10 +35,10 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
         this.backRight = backRight;
         this.config = config;
         kinematics = new SwerveDriveKinematics(
-                new Translation2d(config.wheelBase / 2, config.trackWidth / 2),
-                new Translation2d(config.wheelBase / 2, -config.trackWidth / 2),
-                new Translation2d(-config.wheelBase / 2, config.trackWidth / 2),
-                new Translation2d(-config.wheelBase / 2, -config.trackWidth / 2)
+                config.wheelLocations.frontLeft,
+                config.wheelLocations.frontRight,
+                config.wheelLocations.backLeft,
+                config.wheelLocations.backRight
         );
         odometry = new SwerveDriveOdometry(
                 kinematics,
@@ -41,6 +50,44 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
                         backRight.getPosition()
                 }
         );
+    }
+
+    /**
+     * Constructs a new REVDriveTrain object with four {@link REVSwerveModule modules} created using the given array of motor IDs, and the given config.
+     * @param motorIDs The motor IDs for the module motors, in the order
+     *                 [frontLeftDrive, frontLeftTurn, frontRightDrive, frontRightTurn, backLeftDrive, backLeftTurn, backRightDrive, backRightTurn].
+     * @param moduleConfig The module config used for all the modules
+     * @param driveTrainConfig the config for the driveTrain
+     */
+    public REVDriveTrain(int[] motorIDs, REVSwerveModule.ModuleConfig moduleConfig, DriveTrainConfig driveTrainConfig) {
+        if (motorIDs.length != 8) throw new IllegalArgumentException("Expected 8 motor IDs, got " + motorIDs.length);
+        frontLeft = new REVSwerveModule(motorIDs[0],motorIDs[1],moduleConfig,0);
+        frontRight = new REVSwerveModule(motorIDs[2],motorIDs[3],moduleConfig,0);
+        backLeft = new REVSwerveModule(motorIDs[4],motorIDs[5],moduleConfig,0);
+        backRight = new REVSwerveModule(motorIDs[6],motorIDs[7],moduleConfig,0);
+        config = driveTrainConfig;
+        kinematics = new SwerveDriveKinematics(
+                config.wheelLocations.frontLeft,
+                config.wheelLocations.frontRight,
+                config.wheelLocations.backLeft,
+                config.wheelLocations.backRight
+        );
+        odometry = new SwerveDriveOdometry(
+                kinematics,
+                Rotation2d.fromDegrees(getHeading(false)),
+                new SwerveModulePosition[] {
+                        frontLeft.getPosition(),
+                        frontRight.getPosition(),
+                        backLeft.getPosition(),
+                        backRight.getPosition()
+                }
+        );
+    }
+
+    /**
+     * Configures the PathPlanner AutoBuilder using the information from this class
+     */
+    public void configureAutoBuilder() {
         try {
             AutoBuilder.configure(
                     this::getPose,
@@ -78,6 +125,11 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
                 }
         );
     }
+
+    /**
+     * Returns the current pose estimate of the robot based on encoders.
+     * @return
+     */
     public Pose2d getPose() {
         return odometry.getPoseMeters();
     }
@@ -102,6 +154,7 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
         );
     }
     public void driveRelative(ChassisSpeeds speeds) {
+        //not actually quite sure what this does
         ChassisSpeeds discretized = ChassisSpeeds.discretize(speeds,0.02);
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(discretized);
         frontLeft.setDesiredState(states[0]); //1
@@ -142,12 +195,27 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
     }
 
     public record DriveTrainConfig(
-            double trackWidth,
-            double wheelBase,
+            WheelLocations wheelLocations,
             boolean gyroReversed,
             double maxSpeed,
             double maxAngularSpeed,
             PIDConstants translationPID,
             PIDConstants rotationPID
     ) {}
+
+    public record WheelLocations(
+            Translation2d frontLeft,
+            Translation2d frontRight,
+            Translation2d backLeft,
+            Translation2d backRight
+    ) {
+        public WheelLocations(double trackWidth, double wheelBase) {
+            this(
+                    new Translation2d(wheelBase / 2, trackWidth / 2),
+                    new Translation2d(wheelBase / 2, -trackWidth / 2),
+                    new Translation2d(-wheelBase / 2, trackWidth / 2),
+                    new Translation2d(-wheelBase / 2, -trackWidth / 2)
+            );
+        }
+    }
 }
