@@ -161,11 +161,9 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
 
         public TalonWrapper(CommonTalon motor) {
             this.motor = motor;
-            switch(motor) {
-                case TalonFX fx -> motorFX = fx;
-                case TalonFXS fxs -> motorFXS = fxs;
-                default -> throw new IllegalStateException("Illegal Motor type: " + motor);
-            }
+            if (motor instanceof TalonFXS fxs) motorFXS = fxs;
+            else if (motor instanceof TalonFX fx) motorFX = fx;
+            else  throw new IllegalStateException("Illegal Motor type: " + motor);
         }
 
         public boolean isTalonFX() {
