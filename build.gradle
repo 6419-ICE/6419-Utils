@@ -19,3 +19,14 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'org.ice.util'
+            artifactId = 'ice-commons'
+            version = '0.1'
+
+            from components.java
+        }
+    }
+}
