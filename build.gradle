@@ -22,8 +22,8 @@ test {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'org.ice.util'
-            artifactId = 'ice-commons'
+            groupId = 'org.ice'
+            artifactId = 'commons'
             version = '0.1'
 
             from components.java
