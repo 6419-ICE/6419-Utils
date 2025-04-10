@@ -10,6 +10,10 @@ version = '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
 }
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 dependencies {
     implementation wpi.java.deps.wpilib()
@@ -20,11 +24,22 @@ test {
     useJUnitPlatform()
 }
 publishing {
+    repositories {
+        maven {
+            name = "6419-Utils"
+            url = uri("https://maven.pkg.github.com/6419-ICE/6419-Utils")
+            credentials {
+
+//                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+//                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
     publications {
-        maven(MavenPublication) {
+        gpr(MavenPublication) {
             groupId = 'org.ice'
             artifactId = 'commons'
-            version = '0.1'
+            version = '0.3'
 
             from components.java
         }
