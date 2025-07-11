@@ -14,8 +14,8 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 
-public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
-    private REVSwerveModule frontLeft,frontRight,backLeft,backRight;
+public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
+    private SwerveModule frontLeft,frontRight,backLeft,backRight;
     private SwerveDriveOdometry odometry;
     private SwerveDriveKinematics kinematics;
     private DriveTrainConfig config;
@@ -28,7 +28,7 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
      * @param backRight the back right swerve module
      * @param config config values for the new module
      */
-    public REVDriveTrain(REVSwerveModule frontLeft, REVSwerveModule frontRight, REVSwerveModule backLeft, REVSwerveModule backRight, DriveTrainConfig config) {
+    public SwerveDriveTrain(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight, DriveTrainConfig config) {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
@@ -42,7 +42,7 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
         );
         odometry = new SwerveDriveOdometry(
                 kinematics,
-                Rotation2d.fromDegrees(getHeading(false)),
+                Rotation2d.fromDegrees(0),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
                         frontRight.getPosition(),
@@ -54,36 +54,54 @@ public abstract class REVDriveTrain extends AnnotatedSubsystemBase {
 
     /**
      * Constructs a new REVDriveTrain object with four {@link REVSwerveModule modules} created using the given array of motor IDs, and the given config.
-     * @param motorIDs The motor IDs for the module motors, in the order
-     *                 [frontLeftDrive, frontLeftTurn, frontRightDrive, frontRightTurn, backLeftDrive, backLeftTurn, backRightDrive, backRightTurn].
      * @param moduleConfig The module config used for all the modules
      * @param driveTrainConfig the config for the driveTrain
      */
-    public REVDriveTrain(int[] motorIDs, REVSwerveModule.ModuleConfig moduleConfig, DriveTrainConfig driveTrainConfig) {
-        if (motorIDs.length != 8) throw new IllegalArgumentException("Expected 8 motor IDs, got " + motorIDs.length);
-        frontLeft = new REVSwerveModule(motorIDs[0],motorIDs[1],moduleConfig,0);
-        frontRight = new REVSwerveModule(motorIDs[2],motorIDs[3],moduleConfig,0);
-        backLeft = new REVSwerveModule(motorIDs[4],motorIDs[5],moduleConfig,0);
-        backRight = new REVSwerveModule(motorIDs[6],motorIDs[7],moduleConfig,0);
-        config = driveTrainConfig;
-        kinematics = new SwerveDriveKinematics(
-                config.wheelLocations.frontLeft,
-                config.wheelLocations.frontRight,
-                config.wheelLocations.backLeft,
-                config.wheelLocations.backRight
+    public SwerveDriveTrain(int frontLeftDrive, int frontLeftTurn, int frontRightDrive, int frontRightTurn, int backLeftDrive, int backLeftTurn, int backRightDrive, int backRightTurn, REVSwerveModule.ModuleConfig moduleConfig, DriveTrainConfig driveTrainConfig) {
+        this(
+                new REVSwerveModule(frontLeftDrive,frontLeftTurn,moduleConfig,0),
+                new REVSwerveModule(frontRightDrive,frontRightTurn,moduleConfig,0),
+                new REVSwerveModule(backLeftDrive,backLeftTurn,moduleConfig,0),
+                new REVSwerveModule(backRightDrive,backRightTurn,moduleConfig,0),
+                driveTrainConfig
         );
-        odometry = new SwerveDriveOdometry(
-                kinematics,
-                Rotation2d.fromDegrees(getHeading(false)),
-                new SwerveModulePosition[] {
-                        frontLeft.getPosition(),
-                        frontRight.getPosition(),
-                        backLeft.getPosition(),
-                        backRight.getPosition()
-                }
+//        if (motorIDs.length != 8) throw new IllegalArgumentException("Expected 8 motor IDs, got " + motorIDs.length);
+//        frontLeft = new REVSwerveModule(motorIDs[0],motorIDs[1],moduleConfig,0);
+//        frontRight = new REVSwerveModule(motorIDs[2],motorIDs[3],moduleConfig,0);
+//        backLeft = new REVSwerveModule(motorIDs[4],motorIDs[5],moduleConfig,0);
+//        backRight = new REVSwerveModule(motorIDs[6],motorIDs[7],moduleConfig,0);
+//        config = driveTrainConfig;
+//        kinematics = new SwerveDriveKinematics(
+//                config.wheelLocations.frontLeft,
+//                config.wheelLocations.frontRight,
+//                config.wheelLocations.backLeft,
+//                config.wheelLocations.backRight
+//        );
+//        odometry = new SwerveDriveOdometry(
+//                kinematics,
+//                Rotation2d.fromDegrees(getHeading(false)),
+//                new SwerveModulePosition[] {
+//                        frontLeft.getPosition(),
+//                        frontRight.getPosition(),
+//                        backLeft.getPosition(),
+//                        backRight.getPosition()
+//                }
+//        );
+    }
+    /**
+     * Constructs a new DriveTrain object with four {@link CTRESwerveModule modules} created using the given array of motor IDs, and the given config.
+     * @param moduleConfig The module config used for all the modules
+     * @param driveTrainConfig the config for the driveTrain
+     */
+    public SwerveDriveTrain(int frontLeftDrive, int frontLeftTurn, int frontRightDrive, int frontRightTurn, int backLeftDrive, int backLeftTurn, int backRightDrive, int backRightTurn, CTRESwerveModule.ModuleConfig moduleConfig, DriveTrainConfig driveTrainConfig) {
+        this(
+                new CTRESwerveModule(frontLeftDrive, frontLeftTurn, moduleConfig, 0),
+                new CTRESwerveModule(frontRightDrive, frontRightTurn, moduleConfig, 0),
+                new CTRESwerveModule(backLeftDrive, backLeftTurn, moduleConfig, 0),
+                new CTRESwerveModule(backRightDrive, backRightTurn, moduleConfig, 0),
+                driveTrainConfig
         );
     }
-
     /**
      * Configures the PathPlanner AutoBuilder using the information from this class
      */
