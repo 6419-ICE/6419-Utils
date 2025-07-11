@@ -12,64 +12,16 @@ import org.ice.util.motor.ControlType;
 import org.ice.util.motor.GenericSpark;
 import org.ice.util.sendable.AnnotatedSendable;
 
-public class REVSwerveModule implements AnnotatedSendable {
-    private GenericSpark driveMotor, turningMotor;
+public class REVSwerveModule extends SwerveModule {
     private SparkAbsoluteEncoder turnEncoder;
-    private double angularOffset;
     private SwerveModuleState desiredState;
 
     public REVSwerveModule(int driveMotorID, int turnMotorID, ModuleConfig moduleConfig, double angularOffset) {
+        super(angularOffset);
         configureDriveMotor(driveMotorID,moduleConfig);
         configureTurningMotor(turnMotorID,moduleConfig);
-        this.angularOffset = angularOffset;
         desiredState = new SwerveModuleState(0, Rotation2d.fromRadians(turnEncoder.getPosition()));
         driveMotor.setEncoderPosition(0.0);
-    }
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getVelocity(),
-                new Rotation2d((turnEncoder.getPosition()-angularOffset)));
-    }
-    public SwerveModuleState getDesiredState() {
-        return desiredState;
-    }
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(
-                driveMotor.getPosition(),
-                new Rotation2d((turnEncoder.getPosition() - angularOffset))
-        );
-    }
-    public void setDesiredState(SwerveModuleState desiredState) {
-        // Apply chassis angular offset to the desired state.
-        SwerveModuleState correctedDesiredState = new SwerveModuleState();
-        correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
-        correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(angularOffset));
-        correctedDesiredState.optimize(getPosition().angle);
-        // Optimize the reference state to avoid spinning further than 90 degrees.
-        // SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
-        //     new Rotation2d(turnEncoder.getPosition()));
-
-        // Command driving and turning SPARKS MAX towards their respective setpoints.
-        driveMotor.control(correctedDesiredState.speedMetersPerSecond, ControlType.VELOCITY);
-        turningMotor.control(correctedDesiredState.angle.getRadians(),ControlType.POSITION);
-        this.desiredState = correctedDesiredState;
-    }
-    public void driveRaw(Rotation2d angle, double power) {
-        setDesiredState(new SwerveModuleState(0,angle));
-        driveMotor.control(power, ControlType.DUTY_CYCLE);
-    }
-    public void resetEncoders() {
-        driveMotor.setEncoderPosition(0);
-    }
-    @Getter(key="Drive Temperature")
-    public double getDriveTemp() {
-        return driveMotor.getTemp();
-    }
-    @Getter(key="Turn Temperature")
-    public double getTurnTemp() {
-        return turningMotor.getTemp();
-    }
-    public double getDriveCurrent() {
-        return driveMotor.getOutputCurrent();
     }
 
     private void configureTurningMotor(int motorID, ModuleConfig config) {
@@ -127,6 +79,11 @@ public class REVSwerveModule implements AnnotatedSendable {
 
         driveMotor = new GenericSpark(motor,sparkConfig);
         motor.configure(sparkConfig, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    }
+
+    @Override
+    public double getRawAngle() {
+        return turnEncoder.getPosition();
     }
 
     public enum MotorType {
