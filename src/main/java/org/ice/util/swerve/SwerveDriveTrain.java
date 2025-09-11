@@ -95,10 +95,10 @@ public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
      */
     public SwerveDriveTrain(int frontLeftDrive, int frontLeftTurn, int frontRightDrive, int frontRightTurn, int backLeftDrive, int backLeftTurn, int backRightDrive, int backRightTurn, CTRESwerveModule.ModuleConfig moduleConfig, DriveTrainConfig driveTrainConfig) {
         this(
-                new CTRESwerveModule(frontLeftDrive, frontLeftTurn, moduleConfig, 0),
-                new CTRESwerveModule(frontRightDrive, frontRightTurn, moduleConfig, 0),
-                new CTRESwerveModule(backLeftDrive, backLeftTurn, moduleConfig, 0),
-                new CTRESwerveModule(backRightDrive, backRightTurn, moduleConfig, 0),
+                new CTRESwerveModule(frontLeftDrive, frontLeftTurn, moduleConfig, 0, driveTrainConfig.wheelLocations().frontLeft()),
+                new CTRESwerveModule(frontRightDrive, frontRightTurn, moduleConfig, 0, driveTrainConfig.wheelLocations().frontRight()),
+                new CTRESwerveModule(backLeftDrive, backLeftTurn, moduleConfig, 0, driveTrainConfig.wheelLocations().backLeft()),
+                new CTRESwerveModule(backRightDrive, backRightTurn, moduleConfig, 0, driveTrainConfig.wheelLocations().backRight()),
                 driveTrainConfig
         );
     }

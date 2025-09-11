@@ -14,13 +14,12 @@ import org.ice.util.sendable.AnnotatedSendable;
 
 public class REVSwerveModule extends SwerveModule {
     private SparkAbsoluteEncoder turnEncoder;
-    private SwerveModuleState desiredState;
+
 
     public REVSwerveModule(int driveMotorID, int turnMotorID, ModuleConfig moduleConfig, double angularOffset) {
         super(angularOffset);
         configureDriveMotor(driveMotorID,moduleConfig);
         configureTurningMotor(turnMotorID,moduleConfig);
-        desiredState = new SwerveModuleState(0, Rotation2d.fromRadians(turnEncoder.getPosition()));
         driveMotor.setEncoderPosition(0.0);
     }
 
@@ -82,6 +81,7 @@ public class REVSwerveModule extends SwerveModule {
     }
 
     @Override
+    @Getter(key="Raw Module Angle")
     public double getRawAngle() {
         return turnEncoder.getPosition();
     }

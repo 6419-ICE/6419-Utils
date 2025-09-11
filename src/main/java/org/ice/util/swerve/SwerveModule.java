@@ -22,9 +22,11 @@ public abstract class SwerveModule implements AnnotatedSendable {
         this.angularOffset = angularOffset;
     }
 
+    @Getter(key="Module Angle")
     public double getWheelAngle() {
         return getRawAngle()-angularOffset;
     }
+
     public abstract double getRawAngle();
 
     public SwerveModuleState getState() {
@@ -63,15 +65,32 @@ public abstract class SwerveModule implements AnnotatedSendable {
     public void resetEncoders() {
         driveMotor.setEncoderPosition(0);
     }
-    @AnnotatedSendable.Getter(key="Drive Temperature")
+    @Getter(key="Drive Temperature")
     public double getDriveTemp() {
         return driveMotor.getTemp();
     }
-    @AnnotatedSendable.Getter(key="Turn Temperature")
+    @Getter(key="Turn Temperature")
     public double getTurnTemp() {
         return turningMotor.getTemp();
     }
+    @Getter(key="Drive Current")
     public double getDriveCurrent() {
         return driveMotor.getOutputCurrent();
+    }
+    @Getter(key="Turn Current")
+    public double getTurnCurrent() {
+        return turningMotor.getOutputCurrent();
+    }
+    @Getter(key="Desired Speed")
+    public double getDesiredSpeed() {
+        return desiredState.speedMetersPerSecond;
+    }
+    @Getter(key="Desired Angle")
+    public double getDesiredAngleDegrees() {
+        return desiredState.angle.getDegrees();
+    }
+    @Getter(key="Drive Velocity")
+    public double getVelocity() {
+        return driveMotor.getVelocity();
     }
 }
