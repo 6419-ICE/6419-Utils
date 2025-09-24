@@ -1,8 +1,16 @@
 package org.ice.util.swerve;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import org.ice.util.sendable.AnnotatedSendable;
+
+import java.util.function.Supplier;
 
 /**
  * Mutable set of PID values. Can be put on SmartDashboard and tuned in real time
@@ -67,7 +75,21 @@ public class PIDValues implements AnnotatedSendable {
         return kFF;
     }
     public PIDController asController() {
-        return new PIDController(kP,kI,kD,kFF);
+        if (kFF != 0) DriverStation.reportError("PIDValues with a non-zero kFF value converted to PIDController, which does not support kFF values.", false);
+        return new PIDController(kP,kI,kD);
+    }
+
+    public Slot0Configs asSlot0Config() {
+        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKA(1/kFF);
+    }
+    public Slot1Configs asSlot1Config() {
+        return new Slot1Configs().withKP(kP).withKI(kI).withKD(kD).withKA(1/kFF);
+    }
+    public Slot2Configs asSlot2Config() {
+        return new Slot2Configs().withKP(kP).withKI(kI).withKD(kD).withKA(1/kFF);
+    }
+    public SlotConfigs asSlotConfig() {
+        return new SlotConfigs().withKP(kP).withKI(kI).withKD(kD).withKA(1/kFF);
     }
     public static PIDValues from(double kP, double kI, double kD) {
         return new PIDValues(kP,kI,kD);

@@ -1,125 +1,156 @@
 package org.ice.util.swerve;
 
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.ctre.phoenix6.hardware.traits.CommonTalon;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import org.ice.util.motor.GenericSpark;
-import org.ice.util.motor.GenericTalon;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
 
-public class CTRESwerveModule extends SwerveModule {
-    // import and translate what would be the Talon equivalent of the abs encoder
-    private GenericTalon talon;
-    private SwerveModuleState desiredState;
+import static com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
 
-    public CTRESwerveModule(int driveMotorID, int turnMotorID, ModuleConfig moduleConfig, double angularOffset) {
-        super(angularOffset);
-        configureDriveMotor(driveMotorID,moduleConfig);
-        configureTurningMotor(turnMotorID,moduleConfig);
-        desiredState = new SwerveModuleState(0, Rotation2d.fromRadians(talon.getPosition()));
-        driveMotor.setEncoderPosition(0.0);
-    }
+public class CTRESwerveModule implements SwerveModule {
+    private com.ctre.phoenix6.swerve.SwerveModule<CommonTalon, CommonTalon, ParentDevice> internalModule;
+    private StatusSignal<Temperature> driveTemp, turnTemp;
+    private StatusSignal<Current> driveCurrent, turnCurrent;
+    private final boolean hasSub;
+    public CTRESwerveModule(int driveMotorID, int turnMotorID, ModuleConfig moduleConfig, double angularOffset, Translation2d location) {
+        hasSub = moduleConfig.hasTalonPro;
 
-    private void configureDriveMotor(int driveMotorID, ModuleConfig moduleConfig) {
-//
-//        SparkBaseConfig sparkConfig;
-//        if (driveConfig.motorType == REVSwerveModule.MotorType.SPARK_FLEX) {
-//            motor = new SparkFlex(motorID, SparkLowLevel.MotorType.kBrushless);
-//            sparkConfig = new SparkFlexConfig();
-//        } else {
-//            motor = new SparkMax(motorID, SparkLowLevel.MotorType.kBrushless);
-//            sparkConfig = new SparkMaxConfig();
-//        }
-//        sparkConfig.closedLoop
-//                .pidf(driveConfig.pid.getP(),driveConfig.pid.getI(),driveConfig.pid.getD(),driveConfig.pid.getFF())
-//                .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
-//                .outputRange(driveConfig.minOutput, driveConfig.maxOutput);
-//        sparkConfig.encoder
-//                //meters
-//                .positionConversionFactor((config.wheelDiameter * Math.PI) / driveConfig.reduction)
-//                //meters per second
-//                .velocityConversionFactor((config.wheelDiameter * Math.PI) / driveConfig.reduction / 60.0);
-//        sparkConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
-//        sparkConfig.smartCurrentLimit(driveConfig.currentLimit);
-//        sparkConfig.inverted(driveConfig.inverted);
-//
-//        driveMotor = new GenericSpark(motor,sparkConfig);
-//        motor.configure(sparkConfig, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        SwerveModuleConstantsFactory<ParentConfiguration,ParentConfiguration,?> factory = new SwerveModuleConstantsFactory<>();
         DriveConfig driveConfig = moduleConfig.driveConfig;
-        GenericTalon talon;
-        if (driveConfig.motorType == MotorType.TALONFX) {
-            TalonFX motor = new TalonFX(driveMotorID);
-            TalonFXConfiguration config = new TalonFXConfiguration();
-            config.Slot0.withKP(driveConfig.pid.getP()).withKI(driveConfig.pid.getI()).withKD(driveConfig.pid.getD()).withKV(1/driveConfig.pid.getFF());
-            config.CurrentLimits.StatorCurrentLimit = driveConfig.currentLimit;
-            config.MotorOutput.Inverted = driveConfig.inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-            config.MotorOutput.PeakReverseDutyCycle = driveConfig.maxOutput;
-            config.MotorOutput.PeakForwardDutyCycle = driveConfig.maxOutput;
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            talon = new GenericTalon(motor);
-        } else {
-            TalonFXS motor = new TalonFXS(driveMotorID);
-            TalonFXSConfiguration config = new TalonFXSConfiguration();
-            config.Slot0.withKP(driveConfig.pid.getP()).withKI(driveConfig.pid.getI()).withKD(driveConfig.pid.getD()).withKV(1/driveConfig.pid.getFF());
-            config.CurrentLimits.StatorCurrentLimit = driveConfig.currentLimit;
-            config.MotorOutput.Inverted = driveConfig.inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-            config.MotorOutput.PeakReverseDutyCycle = driveConfig.maxOutput;
-            config.MotorOutput.PeakForwardDutyCycle = driveConfig.maxOutput;
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            talon = new GenericTalon(motor);
-        }
-        this.driveMotor = talon;
-        driveMotor.setPositionConversionFactor((moduleConfig.wheelDiameter * Math.PI) / driveConfig.reduction);
-        driveMotor.setVelocityConversionFactor((moduleConfig.wheelDiameter * Math.PI) / driveConfig.reduction / 60.0);
+        TurnConfig turnConfig = moduleConfig.turnConfig;
+        factory.withDriveMotorGearRatio(driveConfig.reduction)
+                .withSteerMotorGearRatio(turnConfig.reduction) //TODO
+                .withCouplingGearRatio(1.0) //TODO
+                .withWheelRadius(moduleConfig.wheelDiameter/2f)
+                .withSteerMotorGains(turnConfig.pid.asSlot0Config())
+                .withDriveMotorGains(driveConfig.pid.asSlot0Config())
+                .withSteerMotorClosedLoopOutput(moduleConfig.hasTalonPro ? SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC : SwerveModuleConstants.ClosedLoopOutputType.Voltage)
+                .withDriveMotorClosedLoopOutput(moduleConfig.hasTalonPro ? SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC : SwerveModuleConstants.ClosedLoopOutputType.Voltage)
+                //.withSlipCurrent(SlipCurrent) todo maybe add?
+                //.withSpeedAt12Volts(SpeedAt12Volts) only used in open loop
+                .withDriveMotorType(SwerveModuleConstants.DriveMotorArrangement.TalonFX_Integrated)
+                .withSteerMotorType(SwerveModuleConstants.SteerMotorArrangement.TalonFX_Integrated) //maybe add config for this later?
+                .withFeedbackSource(moduleConfig.hasTalonPro ? SwerveModuleConstants.SteerFeedbackType.FusedCANcoder : SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder)
+                .withDriveMotorInitialConfigs(driveConfig.getParentConfig())
+                .withSteerMotorInitialConfigs(turnConfig.getParentConfig());
+                //.withEncoderInitialConfigs(EncoderInitialConfigs) not needed
+                //.withSteerInertia(SteerInertia) todo maybe add?
+                //.withDriveInertia(DriveInertia) todo maybe add?
+                //.withSteerFrictionVoltage(SteerFrictionVoltage) todo maybe add?
+                //.withDriveFrictionVoltage(DriveFrictionVoltage) todo maybe add?
+
+        SwerveModuleConstants<?,?,?> constants = factory.createModuleConstants(
+                turnMotorID,
+                driveMotorID,
+                turnConfig.encoderID,
+                Units.Degrees.of(angularOffset), //handled by superclass
+                location.getMeasureX(),  //skipping for now
+                location.getMeasureY(),  //skipping for now
+                driveConfig.inverted,
+                turnConfig.inverted,
+                turnConfig.encoderInverted
+        );
+        internalModule = new com.ctre.phoenix6.swerve.SwerveModule<>(
+                driveConfig.motorType == MotorType.TALONFX ? TalonFX::new : TalonFXS::new,
+                turnConfig.motorType == MotorType.TALONFX ? TalonFX::new : TalonFXS::new,
+                CANcoder::new,
+                constants,
+                "",
+                0,
+                moduleConfig.moduleIndex
+        );
+        driveTemp = internalModule.getDriveMotor().getDeviceTemp();
+        turnTemp = internalModule.getSteerMotor().getDeviceTemp();
+        driveCurrent = internalModule.getDriveMotor().getStatorCurrent();
+        turnCurrent = internalModule.getSteerMotor().getStatorCurrent();
     }
 
-    private void configureTurningMotor(int turnMotorID, ModuleConfig moduleConfig) {
-//        sparkConfig.closedLoop
-//                .pidf(turnConfig.pid.getP(),turnConfig.pid.getI(),turnConfig.pid.getD(),turnConfig.pid.getFF())
-//                .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
-//                .positionWrappingEnabled(true)
-//                .positionWrappingInputRange(0.0,Math.PI*2.0)
-//                .outputRange(turnConfig.minOutput,turnConfig.maxOutput);
-//        sparkConfig.absoluteEncoder.setSparkMaxDataPortConfig();
-//        sparkConfig.absoluteEncoder.positionConversionFactor(Math.PI*2);
-//        sparkConfig.absoluteEncoder.velocityConversionFactor(Math.PI*2/60);
-//        sparkConfig.smartCurrentLimit(turnConfig.currentLimit);
-//        sparkConfig.inverted(turnConfig.inverted);
-//        sparkConfig.absoluteEncoder.inverted(turnConfig.encoderInverted);
-//        sparkConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
-//        turnEncoder = motor.getAbsoluteEncoder();
-//        turningMotor = new GenericSpark(motor, sparkConfig);
-//        motor.configure(sparkConfig, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-
-        GenericTalon talon;
-        TurnConfig turnConfig = moduleConfig.turnConfig;
-        if (turnConfig.motorType == MotorType.TALONFX) {
-            TalonFX motor = new TalonFX(turnMotorID);
-            TalonFXConfiguration config = new TalonFXConfiguration();
-            config.Slot0.withKP(turnConfig.pid().getP()).withKI(turnConfig.pid().getI()).withKD(turnConfig.pid().getD()).withKV(1/turnConfig.pid().getFF());
-            config.Feedback.FeedbackSensorSource = turnConfig.feedbackSensorSource;
-            config.ClosedLoopGeneral.ContinuousWrap = true;
-            config.MotorOutput.PeakReverseDutyCycle = turnConfig.maxOutput;
-            config.MotorOutput.PeakForwardDutyCycle = turnConfig.maxOutput;
-            config.CurrentLimits.StatorCurrentLimit = turnConfig.currentLimit;
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = turnConfig.inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-            talon = new GenericTalon(motor);
-        } else {
-            TalonFXS motor = new TalonFXS(turnMotorID);
-            TalonFXSConfiguration config = new TalonFXSConfiguration();
-        }
+    @Override
+    public double getWheelAngle() {
+        return getRawAngle();
     }
 
     @Override
     public double getRawAngle() {
-        return 0;
+        return getState().angle.getDegrees();
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        return internalModule.getCurrentState();
+    }
+
+    @Override
+    public SwerveModuleState getDesiredState() {
+        return internalModule.getTargetState();
+    }
+
+    @Override
+    public SwerveModulePosition getPosition() {
+        return internalModule.getPosition(true);
+    }
+
+    @Override
+    public void setDesiredState(SwerveModuleState desiredState) {
+        internalModule.apply(
+                new ModuleRequest()
+                        .withState(desiredState)
+                        .withDriveRequest(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity)
+                        .withSteerRequest(com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType.Position)
+                        .withEnableFOC(hasSub)
+        );
+    }
+
+    @Override
+    public void resetDriveEncoder() {
+        internalModule.resetPosition();
+    }
+
+    @Override
+    public double getDriveTempCelsius() {
+        return driveTemp.refresh().getValueAsDouble();
+    }
+
+    @Override
+    public double getTurnTempCelsius() {
+        return turnTemp.refresh().getValueAsDouble();
+    }
+
+    @Override
+    public double getDriveCurrent() {
+        return driveCurrent.refresh().getValueAsDouble();
+    }
+
+    @Override
+    public double getTurnCurrent() {
+        return turnCurrent.refresh().getValueAsDouble();
+    }
+
+    @Override
+    public double getDesiredSpeed() {
+        return getDesiredState().speedMetersPerSecond;
+    }
+
+    @Override
+    public double getDesiredAngleDegrees() {
+        return getDesiredState().angle.getDegrees();
+    }
+
+    @Override
+    public double getVelocity() {
+        return getState().speedMetersPerSecond;
     }
 
     public enum MotorType {
@@ -129,7 +160,9 @@ public class CTRESwerveModule extends SwerveModule {
     public record ModuleConfig(
             DriveConfig driveConfig,
             TurnConfig turnConfig,
-            double wheelDiameter
+            double wheelDiameter,
+            int moduleIndex,
+            boolean hasTalonPro
     ) {}
     public record DriveConfig(
             MotorType motorType,
@@ -138,14 +171,37 @@ public class CTRESwerveModule extends SwerveModule {
             int currentLimit,
             boolean inverted,
             double reduction
-    ) {}
+    ) {
+        private ParentConfiguration getParentConfig() {
+            return switch (motorType) {
+                case TALONFX -> new TalonFXConfiguration()
+                        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(currentLimit))
+                        .withMotorOutput(new MotorOutputConfigs().withPeakForwardDutyCycle(maxOutput).withPeakReverseDutyCycle(-maxOutput));
+                case TALONFXS -> new TalonFXSConfiguration()
+                        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(currentLimit))
+                        .withMotorOutput(new MotorOutputConfigs().withPeakForwardDutyCycle(maxOutput).withPeakReverseDutyCycle(-maxOutput));
+            };
+        }
+    }
     public record TurnConfig(
             MotorType motorType,
-            FeedbackSensorSourceValue feedbackSensorSource,
+            int encoderID,
             PIDValues pid,
             double maxOutput,
+            double reduction,
             int currentLimit,
             boolean inverted,
             boolean encoderInverted
-    ) {}
+    ) {
+        private ParentConfiguration getParentConfig() {
+            return switch (motorType) {
+                case TALONFX -> new TalonFXConfiguration()
+                        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(currentLimit))
+                        .withMotorOutput(new MotorOutputConfigs().withPeakForwardDutyCycle(maxOutput).withPeakReverseDutyCycle(-maxOutput));
+                case TALONFXS -> new TalonFXSConfiguration()
+                        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(currentLimit))
+                        .withMotorOutput(new MotorOutputConfigs().withPeakForwardDutyCycle(maxOutput).withPeakReverseDutyCycle(-maxOutput));
+            };
+        }
+    }
 }
