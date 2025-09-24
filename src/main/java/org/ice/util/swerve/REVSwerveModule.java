@@ -9,18 +9,21 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import org.ice.util.motor.ControlType;
+import org.ice.util.motor.GenericMotorController;
 import org.ice.util.motor.GenericSpark;
 import org.ice.util.sendable.AnnotatedSendable;
 
-public class REVSwerveModule extends SwerveModule {
+public class REVSwerveModule implements SwerveModule {
     private SparkAbsoluteEncoder turnEncoder;
-
+    protected GenericMotorController<?> driveMotor, turningMotor;
+    private double angularOffset;
+    private SwerveModuleState desiredState;
 
     public REVSwerveModule(int driveMotorID, int turnMotorID, ModuleConfig moduleConfig, double angularOffset) {
-        super(angularOffset);
         configureDriveMotor(driveMotorID,moduleConfig);
         configureTurningMotor(turnMotorID,moduleConfig);
         driveMotor.setEncoderPosition(0.0);
+        this.angularOffset = angularOffset;
     }
 
     private void configureTurningMotor(int motorID, ModuleConfig config) {
@@ -81,9 +84,95 @@ public class REVSwerveModule extends SwerveModule {
     }
 
     @Override
+    @Getter(key="Module Angle")
+    public double getWheelAngle() {
+        return getRawAngle()-angularOffset;
+    }
+
+    @Override
     @Getter(key="Raw Module Angle")
     public double getRawAngle() {
         return turnEncoder.getPosition();
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(driveMotor.getVelocity(),
+                new Rotation2d((getWheelAngle())));
+    }
+
+    @Override
+    public SwerveModuleState getDesiredState() {
+        return desiredState;
+    }
+
+    @Override
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(
+                driveMotor.getPosition(),
+                new Rotation2d((getWheelAngle()))
+        );
+    }
+
+    @Override
+    public void setDesiredState(SwerveModuleState desiredState) {
+        // Apply chassis angular offset to the desired state.
+        SwerveModuleState correctedDesiredState = new SwerveModuleState();
+        correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
+        correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(angularOffset));
+        // Optimize the reference state to avoid spinning further than 90 degrees.
+        correctedDesiredState.optimize(getPosition().angle);
+        // Command driving and turning SPARKS MAX towards their respective setpoints.
+        driveMotor.control(correctedDesiredState.speedMetersPerSecond, ControlType.VELOCITY);
+        turningMotor.control(correctedDesiredState.angle.getRadians(),ControlType.POSITION);
+        this.desiredState = correctedDesiredState;
+    }
+
+    @Override
+    public void resetDriveEncoder() {
+        driveMotor.setEncoderPosition(0);
+    }
+
+    @Override
+    @Getter(key="Drive Temperature")
+    public double getDriveTempCelsius() {
+        return driveMotor.getTemp();
+    }
+
+    @Override
+    @Getter(key="Turn Temperature")
+    public double getTurnTempCelsius() {
+        return turningMotor.getTemp();
+    }
+
+    @Override
+    @Getter(key="Drive Current")
+    public double getDriveCurrent() {
+        return driveMotor.getOutputCurrent();
+    }
+
+    @Override
+    @Getter(key="Turn Current")
+    public double getTurnCurrent() {
+        return turningMotor.getOutputCurrent();
+    }
+
+    @Override
+    @Getter(key="Desired Speed")
+    public double getDesiredSpeed() {
+        return desiredState.speedMetersPerSecond;
+    }
+
+    @Override
+    @Getter(key="Desired Angle")
+    public double getDesiredAngleDegrees() {
+        return desiredState.angle.getDegrees();
+    }
+
+    @Override
+    @Getter(key="Drive Velocity")
+    public double getVelocity() {
+        return driveMotor.getVelocity();
     }
 
     public enum MotorType {

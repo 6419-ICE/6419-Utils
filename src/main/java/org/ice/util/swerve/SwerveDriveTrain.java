@@ -16,6 +16,7 @@ import java.io.IOException;
 
 public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
     private SwerveModule frontLeft,frontRight,backLeft,backRight;
+    private SwerveModule[] moduleArr;
     private SwerveDriveOdometry odometry;
     private SwerveDriveKinematics kinematics;
     private DriveTrainConfig config;
@@ -29,10 +30,13 @@ public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
      * @param config config values for the new module
      */
     public SwerveDriveTrain(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight, DriveTrainConfig config) {
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.backLeft = backLeft;
-        this.backRight = backRight;
+        moduleArr = new SwerveModule[] {
+                this.frontLeft = frontLeft,
+                this.frontRight = frontRight,
+                this.backLeft = backLeft,
+                this.backRight = backRight
+        };
+
         this.config = config;
         kinematics = new SwerveDriveKinematics(
                 config.wheelLocations.frontLeft,
@@ -180,17 +184,7 @@ public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
         backLeft.setDesiredState(states[2]); //3
         backRight.setDesiredState(states[3]); //2
     }
-    /**
-     * This is private because it kinda uses the ChassisSpeeds class wrong, and I dont want any accidental mix ups (this treats the chassis speeds' speedMetersPerSecond as a percent power for duty cycle)
-     * @param speeds
-     */
-    private void driveRelativeRaw(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
-        frontLeft.driveRaw(states[0].angle,states[0].speedMetersPerSecond); //1
-        frontRight.driveRaw(states[1].angle,states[1].speedMetersPerSecond); //0
-        backLeft.driveRaw(states[2].angle,states[2].speedMetersPerSecond); //3
-        backRight.driveRaw(states[3].angle,states[3].speedMetersPerSecond); //2
-    }
+
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
         xSpeed *= config.maxSpeed;
         ySpeed *= config.maxSpeed;
@@ -199,19 +193,6 @@ public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
         //new ChassisSpeeds(xSpeed,ySpeed,rot).toFieldRelativeSpeeds(Rotation2d.fromDegrees(getHeading()));
         if (fieldRelative) speeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds,Rotation2d.fromDegrees(getHeading(false)));
         driveRelative(speeds);
-    }
-
-    /**
-     * Drives the robot via duty cycle percentage input
-     * @param xSpeed the x speed of the robot in duty cycle, as a value from -1 -> 1
-     * @param ySpeed the x speed of the robot in duty cycle, as a value from -1 -> 1
-     * @param rot the rotational speed of robot in duty cycle as a value from -1 -> 1
-     * @param fieldRelative if the values should be field relative or not
-     */
-    public void driveRaw(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        ChassisSpeeds speeds = new ChassisSpeeds(xSpeed,ySpeed,rot);
-        if (fieldRelative) speeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds,Rotation2d.fromDegrees(getHeading(false)));
-        driveRelativeRaw(speeds);
     }
 
     /**
@@ -228,6 +209,14 @@ public abstract class SwerveDriveTrain extends AnnotatedSubsystemBase {
      */
     public double getHeading(boolean flipped) {
         return getRawHeading() * ((flipped ^ config.gyroReversed) ? -1 : 1);
+    }
+
+    /**
+     * Returns an array of all the underlying {@link SwerveModule} objects in the drive train
+     * @return a 4 length array containing this DriveTrain's Swerve Modules in the order: frontLeft, frontRight, backLeft, backRight
+     */
+    public SwerveModule[] getModules() {
+        return moduleArr;
     }
 
     /**
