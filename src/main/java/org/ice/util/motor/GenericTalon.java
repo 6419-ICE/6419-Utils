@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import org.ice.util.swerve.PIDValues;
 
 /**
  * TalonFX and TalonFXS implementation of {@link GenericMotorController}
@@ -130,6 +131,13 @@ public class GenericTalon implements GenericMotorController<CommonTalon> {
     @Getter(key="Motor ID")
     public int getMotorID() {
         return motor.isTalonFX() ? motor.asTalonFX().getDeviceID() : motor.asTalonFXS().getDeviceID();
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public void setPID(PIDValues pid) {
+        if (motor.isTalonFX()) motor.asTalonFX().getConfigurator().apply(pid.asSlotConfig());
+        else motor.asTalonFXS().getConfigurator().apply(pid.asSlotConfig());
     }
 
     /**{@inheritDoc}*/

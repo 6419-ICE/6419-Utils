@@ -3,6 +3,7 @@ package org.ice.util.motor;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.SparkBaseConfig;
+import org.ice.util.swerve.PIDValues;
 
 /**
  * Spark MAX and Spark FLEX implementation of {@link GenericMotorController}
@@ -100,6 +101,18 @@ public class GenericSpark implements GenericMotorController<SparkBase> {
     @Getter(key="Motor ID")
     public int getMotorID() {
         return motor.getDeviceId();
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public void setPID(PIDValues pid) {
+        config.closedLoop.pidf(
+                pid.getP(),
+                pid.getI(),
+                pid.getD(),
+                pid.getFF()
+        );
+        motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
     }
 
     /**{@inheritDoc}*/

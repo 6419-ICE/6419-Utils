@@ -8,16 +8,21 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
+import org.ice.util.motor.GenericMotorController;
 import org.ice.util.sendable.AnnotatedSendable;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
  * Mutable set of PID values. Can be put on SmartDashboard and tuned in real time
  */
 public class PIDValues implements AnnotatedSendable {
-    //I know, hungarian notation bad, especially when it isn't even true. But like kP kI and kD just make sense.
+
     private double kP, kI, kD, kFF;
+
+    private GenericMotorController<?> linkedMotor;
+
     public PIDValues(double kP, double kI, double kD) {
         this(kP,kI,kD,0.0);
     }
@@ -30,33 +35,43 @@ public class PIDValues implements AnnotatedSendable {
     @Setter(key="P")
     public PIDValues withP(double kP) {
         this.kP = kP;
+        updateLinked();
         return this;
     }
     @Setter(key="I")
     public PIDValues withI(double kI) {
         this.kI = kI;
+        updateLinked();
         return this;
     }
     @Setter(key="D")
     public PIDValues withD(double kD) {
         this.kD = kD;
+        updateLinked();
         return this;
     }
     @Setter(key="FF")
     public PIDValues withFF(double kFF) {
         this.kFF = kFF;
+        updateLinked();
         return this;
     }
-    public void withPID(double kP, double kI, double kD) {
+
+    public PIDValues withPID(double kP, double kI, double kD) {
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+        updateLinked();
+        return this;
     }
-    public void withPIDF(double kP, double kI, double kD, double kFF) {
+
+    public PIDValues withPIDF(double kP, double kI, double kD, double kFF) {
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
         this.kFF = kFF;
+        updateLinked();
+        return this;
     }
     @Getter(key="P")
     public double getP() {
@@ -77,6 +92,15 @@ public class PIDValues implements AnnotatedSendable {
     public PIDController asController() {
         if (kFF != 0) DriverStation.reportError("PIDValues with a non-zero kFF value converted to PIDController, which does not support kFF values.", false);
         return new PIDController(kP,kI,kD);
+    }
+
+    public void linkToMotor(GenericMotorController<?> motor) {
+        linkedMotor = motor;
+        updateLinked();
+    }
+
+    private void updateLinked() {
+        if (linkedMotor != null) linkedMotor.setPID(this);
     }
 
     public Slot0Configs asSlot0Config() {

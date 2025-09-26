@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.traits.CommonTalon;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import org.ice.util.sendable.AnnotatedSendable;
+import org.ice.util.swerve.PIDValues;
 
 /**
  * Generic top-level interface that defines multiple methods for controlling and reading motors.
@@ -131,6 +132,23 @@ public interface GenericMotorController<T> extends AnnotatedSendable {
      * The motor's CAN bus ID
      */
     int getMotorID();
+
+    /**
+     * Configures the motor to use the given PID values.
+     * @param pid the PID values to configure the motor with
+     * @see #linkToPIDValues(PIDValues)
+     */
+    void setPID(PIDValues pid);
+
+    /**
+     * Links this motor to the given {@link PIDValues} object, causing this motor's configured PID
+     * to automatically update whenever the linked pid values are changed
+     * @param pidValues the PIDValues instance to link this motor to
+     * @see PIDValues#linkToMotor(GenericMotorController)
+     */
+    default void linkToPIDValues(PIDValues pidValues) {
+        pidValues.linkToMotor(this);
+    }
 
     /**
      * Sets this motor to {@link #follow(GenericMotorController, boolean) follow} the given leader motor.
